@@ -3233,6 +3233,20 @@ RefImageParams StableDiffusionGGML::resolve_ref_image_params(const char* ref_ima
                 LOG_WARN("ignoring invalid reference image arg '%s=%s'", key.c_str(), value.c_str());
                 rejected_keys.insert(key);
             }
+        } else if (key == "vae_resize_filter") {
+            if (value == "nearest") {
+                params.vae_resize_filter = sd::ops::InterpolateMode::Nearest;
+            } else if (value == "bilinear") {
+                params.vae_resize_filter = sd::ops::InterpolateMode::Bilinear;
+            } else if (value == "bicubic") {
+                params.vae_resize_filter = sd::ops::InterpolateMode::Bicubic;
+            } else if (value == "lanczos") {
+                params.vae_resize_filter = sd::ops::InterpolateMode::Lanczos;
+            } else {
+                LOG_WARN("ignoring invalid reference image arg '%s=%s' (valid: nearest, bilinear, bicubic, lanczos)",
+                         key.c_str(), value.c_str());
+                rejected_keys.insert(key);
+            }
         } else if (key == "vlm_resize_mode") {
             if (value == "longest_side") {
                 params.vlm_resize_mode = RefImageResizeMode::LONGEST_SIDE;

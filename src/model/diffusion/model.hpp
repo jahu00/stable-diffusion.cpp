@@ -37,6 +37,11 @@ struct RefImageParams {
     bool vae_center_crop               = false;
     bool vlm_use_vae_input             = false;
     RefImageSizeMode ref_image_size    = RefImageSizeMode::MATCH;
+    // Filter used when resizing reference images before VAE encoding (resize_before_vae).
+    // Nearest (the historical default) introduces aliasing when downsampling; use
+    // Bicubic or Lanczos for smooth content. Must be the last member: presets use
+    // positional aggregate initialization.
+    sd::ops::InterpolateMode vae_resize_filter = sd::ops::InterpolateMode::Nearest;
 };
 
 const std::unordered_map<std::string, RefImageParams> REF_IMAGE_PRESETS = {

@@ -408,13 +408,20 @@ namespace sd::pipeline {
                 vae_height = round(vae_height / factor) * factor;
                 vae_width  = round(vae_width / factor) * factor;
 
+                // antialias widens the filter by the downscale factor, which is what actually
+                // removes aliasing when shrinking; it is a no-op for upsampling and only valid
+                // for 2D filter modes (not the nearest-* modes).
+                const bool vae_resize_aa = sd::ops::is_2d_filter_interpolate_mode(ref_image_params.vae_resize_filter);
                 auto resized_ref_img = ref_image_params.vae_center_crop
                                            ? sd::resize_and_center_crop(ref_images[i], static_cast<int>(vae_width), static_cast<int>(vae_height))
                                            : sd::ops::interpolate(ref_images[i],
                                                                   {static_cast<int>(vae_width),
                                                                    static_cast<int>(vae_height),
                                                                    ref_images[i].shape()[2],
-                                                                   ref_images[i].shape()[3]});
+                                                                   ref_images[i].shape()[3]},
+                                                                  ref_image_params.vae_resize_filter,
+                                                                  false,
+                                                                  vae_resize_aa);
 
                 LOG_VERBOSE("resize vae ref image %d from %" PRId64 "x%" PRId64 " to %" PRId64 "x%" PRId64,
                             static_cast<int>(i),
